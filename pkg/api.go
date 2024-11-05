@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"sync"
 )
 
 type Artist struct {
@@ -15,6 +16,30 @@ type Artist struct {
 	FirstAlbum     string              `json:"firstAlbum"`
 	Relations      string              `json:"relations"`
 	DatesLocations map[string][]string `json:"-"`
+}
+
+var instance *APIClient
+var once sync.Once
+
+type APIClient struct {
+	artists []Artist
+}
+
+func GetAPIClient() *APIClient {
+	once.Do(func() {
+		instance = &APIClient{}
+		instance.fetchArtists()
+	})
+	return instance
+}
+
+func (client *APIClient) fetchArtists() error {
+	response, err := http.Get("https://groupietrackers.herokuapp.com/api/artists")
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+	return json.NewDecoder(response.Body).Decode(&client.artists)
 }
 
 func GetAPI() error {

@@ -6,6 +6,39 @@ import (
 	"path/filepath"
 )
 
+type Error interface {
+	Render(w http.ResponseWriter)
+}
+
+type BadRequestError struct{}
+type NotFoundError struct{}
+type InternalServerError struct{}
+
+func NewError(status int) Error {
+	switch status {
+	case 400:
+		return &BadRequestError{}
+	case 404:
+		return &NotFoundError{}
+	case 500:
+		return &InternalServerError{}
+	default:
+		return &InternalServerError{}
+	}
+}
+
+func (e *BadRequestError) Render(w http.ResponseWriter) {
+	http.Error(w, "400 - Bad Request", http.StatusBadRequest)
+}
+
+func (e *NotFoundError) Render(w http.ResponseWriter) {
+	http.Error(w, "404 - Not Found", http.StatusBadRequest)
+}
+
+func (e *InternalServerError) Render(w http.ResponseWriter) {
+	http.Error(w, "500 - Internal server error", http.StatusBadRequest)
+}
+
 type error_status struct {
 	Message string
 	Status  string

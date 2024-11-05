@@ -1,8 +1,8 @@
-# Groupie-Tracker
+# Groupie-Tracker-Search-Bar
 
 ## Description
 
-Groupie Trackers consists on receiving a given API and manipulate the data contained in it, in order to create a site, displaying the information.
+Groupie tracker search bar consists of creating a functional program that searches, inside your website, for a specific text input. So the focus of this project is to create a way for the client to search a member or artist or any other attribute in the data system you made.
 
 
 ###  Usage: How to Run
@@ -24,5 +24,5 @@ Start the server:
     Open a web browser and go to http://localhost:8080 to access the application.
 
 
-    
+Ctrl + F5 in case search - bar is not working properly.
     

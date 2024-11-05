@@ -1,11 +1,13 @@
 package pkg
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 var (
@@ -79,4 +81,44 @@ func ArtistHandler(w http.ResponseWriter, r *http.Request) {
 		ErrorHandler(w, http.StatusInternalServerError)
 		return
 	}
+}
+
+func SearchHandler(w http.ResponseWriter, r *http.Request) {
+	query := strings.ToLower(r.URL.Query().Get("q"))
+	var results []map[string]string
+
+	for _, artist := range artists {
+		if strings.Contains(strings.ToLower(artist.Name), query) {
+			results = append(results, map[string]string{
+				"type": "artist/band", "name": artist.Name, "url": fmt.Sprintf("/artist/%d", artist.Id),
+			})
+		}
+		for _, member := range artist.Members {
+			if strings.Contains(strings.ToLower(member), query) {
+				results = append(results, map[string]string{
+					"type": "member", "name": member, "url": fmt.Sprintf("/artist/%d", artist.Id),
+				})
+			}
+		}
+		if strings.Contains(strings.ToLower(artist.FirstAlbum), query) {
+			results = append(results, map[string]string{
+				"type": "first album date", "name": artist.FirstAlbum, "url": fmt.Sprintf("/artist/%d", artist.Id),
+			})
+		}
+		if strings.Contains(strconv.Itoa(artist.CreationDate), query) {
+			results = append(results, map[string]string{
+				"type": "creation date", "name": strconv.Itoa(artist.CreationDate), "url": fmt.Sprintf("/artist/%d", artist.Id),
+			})
+		}
+		for location := range artist.DatesLocations {
+			if strings.Contains(strings.ToLower(location), query) {
+				results = append(results, map[string]string{
+					"type": "location", "name": location, "url": fmt.Sprintf("/artist/%d", artist.Id),
+				})
+			}
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(results)
 }
